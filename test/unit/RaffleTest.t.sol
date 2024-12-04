@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+
 import {Test} from "forge-std/Test.sol";
 import {DeployRaffle} from "script/DeployRaffle.s.sol";
 import {Raffle} from "src/Raffle.sol";
@@ -11,6 +12,7 @@ import {CodeConstants} from "script/HelperConfig.s.sol";
 contract RaffleTest is Test, CodeConstants {
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
+
     Raffle public raffle;
     HelperConfig public helperConfig;
     uint256 entranceFee;
@@ -75,7 +77,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.warp(block.timestamp + interval + 1);
         vm.roll(block.number + 1);
 
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
 
         assert(upkeepNeeded == false);
     }
@@ -87,7 +89,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.roll(block.number + 1);
         raffle.performUpkeep("");
         Raffle.RaffleState raffleState = raffle.getRaffleState();
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         assert(uint256(raffleState) == 1);
         assert(upkeepNeeded == false);
     }
@@ -96,7 +98,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.warp(block.timestamp + interval - 1);
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         assert(upkeepNeeded == false);
     }
 
@@ -105,7 +107,7 @@ contract RaffleTest is Test, CodeConstants {
         vm.roll(block.number + 1);
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
-        (bool upkeepNeeded, ) = raffle.checkUpkeep("");
+        (bool upkeepNeeded,) = raffle.checkUpkeep("");
         assert(upkeepNeeded == true);
     }
 
@@ -118,14 +120,7 @@ contract RaffleTest is Test, CodeConstants {
     }
 
     function testCheckPerformUpkeepRevertsIfUpkeepIsFalse() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Raffle.Raffle_UpkeepNotNeeded.selector,
-                0,
-                0,
-                0
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle_UpkeepNotNeeded.selector, 0, 0, 0));
         raffle.performUpkeep("");
     }
 
@@ -137,10 +132,7 @@ contract RaffleTest is Test, CodeConstants {
         _;
     }
 
-    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId()
-        public
-        raffleEntered
-    {
+    function testPerformUpkeepUpdatesRaffleStateAndEmitsRequestId() public raffleEntered {
         vm.recordLogs();
         raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
@@ -157,29 +149,20 @@ contract RaffleTest is Test, CodeConstants {
         _;
     }
 
-    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(
-        uint256 randomRequestId
-    ) public raffleEntered skipFork {
-        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            randomRequestId,
-            address(raffle)
-        );
-    }
-
-    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney()
+    function testFulfillRandomWordsCanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId)
         public
         raffleEntered
         skipFork
     {
+        vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
+    }
+
+    function testFulfillRandomWordsPicksAWinnerResetsAndSendsMoney() public raffleEntered skipFork {
         uint256 additionalEntrants = 3; //4 people total enter
         uint256 startingIndex = 1;
         address expectedWinner = address(1);
-        for (
-            uint256 i = startingIndex;
-            i < startingIndex + additionalEntrants;
-            i++
-        ) {
+        for (uint256 i = startingIndex; i < startingIndex + additionalEntrants; i++) {
             address newPlayer = address(uint160(i));
             hoax(newPlayer, 1 ether);
             raffle.enterRaffle{value: entranceFee}();
@@ -190,10 +173,7 @@ contract RaffleTest is Test, CodeConstants {
         raffle.performUpkeep("");
         Vm.Log[] memory entries = vm.getRecordedLogs();
         bytes32 requestId = entries[1].topics[1];
-        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(
-            uint256(requestId),
-            address(raffle)
-        );
+        VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(uint256(requestId), address(raffle));
         address recentWinner = raffle.getWinner();
         Raffle.RaffleState raffleState = raffle.getRaffleState();
         uint256 winnerBalance = recentWinner.balance;

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.19;
+
 import {Test} from "forge-std/Test.sol";
 import {Raffle} from "src/Raffle.sol";
 import {DeployRaffle} from "script/DeployRaffle.s.sol";
@@ -30,16 +31,9 @@ contract Interactions is Test {
     function testUserCanFundSubscriptionInteractions() external {
         FundSubscription fundSubscription = new FundSubscription();
         fundSubscription.fundSubscription(
-            vrfCoordinator,
-            subId,
-            helperConfig.getConfig().link,
-            helperConfig.getConfig().account
+            vrfCoordinator, subId, helperConfig.getConfig().link, helperConfig.getConfig().account
         );
-        uint96 finalBalance = VRFCoordinatorV2_5Mock(vrfCoordinator)
-            .s_totalBalance();
-        assertEq(
-            finalBalance,
-            initialBalance + fundSubscription.getFundAmount()
-        );
+        uint96 finalBalance = VRFCoordinatorV2_5Mock(vrfCoordinator).s_totalBalance();
+        assertEq(finalBalance, initialBalance + fundSubscription.getFundAmount());
     }
 }
