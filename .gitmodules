@@ -8,8 +8,8 @@
 
 [submodule "lib/foundry-devops"]
     path = lib/foundry-devops
-    url = https://github.com/foundry-rs/foundry-devops
+    url = https://github.com/Cyfrin/foundry-devops
 
 [submodule "lib/solmate"]
     path = lib/solmate
-    url = https://github.com/Rari-Capital/solmate
+    url = https://github.com/transmissions11/solmatef
