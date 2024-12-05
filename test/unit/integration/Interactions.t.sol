@@ -17,23 +17,28 @@ contract Interactions is Test {
     HelperConfig helperConfig;
     uint256 subId;
     address vrfCoordinator;
-    uint96 initialBalance;
+
+    event SubscriptionFunded(uint256 indexed subId, uint256 oldBalance, uint256 newBalance);
 
     function setUp() external {
         DeployRaffle deployRaffle = new DeployRaffle();
         (raffle, helperConfig) = deployRaffle.deployRaffle();
-        vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
-        subId = helperConfig.getConfig().subscriptionId;
-        initialBalance = VRFCoordinatorV2_5Mock(vrfCoordinator).s_totalBalance();
+        HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
+        vrfCoordinator = config.vrfCoordinator;
+        subId = config.subscriptionId;
+
         vm.deal(USER, STARTING_BALANCE);
     }
 
     function testUserCanFundSubscriptionInteractions() external {
+        uint96 initialBalance = VRFCoordinatorV2_5Mock(vrfCoordinator).s_totalBalance();
         FundSubscription fundSubscription = new FundSubscription();
         fundSubscription.fundSubscription(
             vrfCoordinator, subId, helperConfig.getConfig().link, helperConfig.getConfig().account
         );
         uint96 finalBalance = VRFCoordinatorV2_5Mock(vrfCoordinator).s_totalBalance();
-        assertEq(finalBalance, initialBalance + fundSubscription.getFundAmount());
+        assertEq(
+            finalBalance, initialBalance + fundSubscription.getFundAmount(), "Balance should be increased by 3 ether"
+        );
     }
 }

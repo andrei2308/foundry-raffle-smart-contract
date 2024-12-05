@@ -73,8 +73,12 @@ contract FundSubscription is Script, CodeConstants {
         fundSubscriptionUsingConfig();
     }
 
-    function getFundAmount() public pure returns (uint256) {
-        return FUND_AMOUNT * 100;
+    function getFundAmount() public view returns (uint256) {
+        if (block.chainid == LOCAL_CHAIN_ID) {
+            return FUND_AMOUNT * 100;
+        } else {
+            return FUND_AMOUNT;
+        }
     }
 }
 

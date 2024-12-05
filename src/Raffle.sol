@@ -113,7 +113,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         VRFV2PlusClient.RandomWordsRequest memory request = VRFV2PlusClient.RandomWordsRequest({
             keyHash: i_keyHash,
             subId: i_subscriptionId,
-            requestConfirmations: REQUEST_CONFIRMATONS,
+            requestConfirmations: 3,
             callbackGasLimit: i_callbackGasLimit,
             numWords: NUM_WORDS,
             extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: false}))
