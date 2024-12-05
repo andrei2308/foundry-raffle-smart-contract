@@ -19,6 +19,7 @@ abstract contract CodeConstants {
 
 contract HelperConfig is CodeConstants, Script {
     address deployer;
+
     error HelperConfig_InvalidChainId();
 
     struct NetworkConfig {
@@ -43,9 +44,7 @@ contract HelperConfig is CodeConstants, Script {
         networkConfigs[chainId] = config;
     }
 
-    function getConfigByChainId(
-        uint256 chainId
-    ) public returns (NetworkConfig memory) {
+    function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
         if (networkConfigs[chainId].vrfCoordinator != address(0)) {
             return networkConfigs[chainId];
         } else if (chainId == LOCAL_CHAIN_ID) {
@@ -56,17 +55,16 @@ contract HelperConfig is CodeConstants, Script {
     }
 
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
-        return
-            NetworkConfig({
-                entranceFee: 0.01 ether,
-                interval: 30, //30 seconds
-                vrfCoordinator: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B,
-                gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
-                callbackGasLimit: 500000,
-                subscriptionId: 92929868081786283001051859072688436333659780913164620031290002461021448262939,
-                link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
-                account: 0x95fd8bdd071f25a1baE9086b6f95Eeda9c3EBB78
-            });
+        return NetworkConfig({
+            entranceFee: 0.01 ether,
+            interval: 30, //30 seconds
+            vrfCoordinator: 0x9DdfaCa8183c41ad55329BdeeD9F6A8d53168B1B,
+            gasLane: 0x787d74caea10b2b357790d5b5247c2f63d1d91572a9846f780606e4d953677ae,
+            callbackGasLimit: 500000,
+            subscriptionId: 92929868081786283001051859072688436333659780913164620031290002461021448262939,
+            link: 0x779877A7B0D9E8603169DdbD7836e478b4624789,
+            account: 0x95fd8bdd071f25a1baE9086b6f95Eeda9c3EBB78
+        });
     }
 
     function getConfig() public returns (NetworkConfig memory) {
@@ -79,11 +77,8 @@ contract HelperConfig is CodeConstants, Script {
         }
         //Deploy mocks
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinator = new VRFCoordinatorV2_5Mock(
-            MOCK_BASE_FEE,
-            MOCK_GAS_PRICE,
-            MOCK_WEI_PER_UNIT_LINK
-        );
+        VRFCoordinatorV2_5Mock vrfCoordinator =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE, MOCK_WEI_PER_UNIT_LINK);
         LinkToken link = new LinkToken();
         vm.stopBroadcast();
         localNetworkConfig = NetworkConfig({
