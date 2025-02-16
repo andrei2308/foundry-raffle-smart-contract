@@ -18,10 +18,10 @@ abstract contract CodeConstants {
 }
 
 contract HelperConfig is CodeConstants, Script {
-    address deployer;
-
+    //** Errors */
     error HelperConfig_InvalidChainId();
 
+    //** Types */
     struct NetworkConfig {
         uint256 entranceFee;
         uint256 interval;
@@ -32,10 +32,13 @@ contract HelperConfig is CodeConstants, Script {
         address link;
         address account;
     }
+    //** State variables */
 
+    address deployer;
     NetworkConfig public localNetworkConfig;
     mapping(uint256 chainId => NetworkConfig) public networkConfigs;
 
+    //** Functions */
     constructor() {
         networkConfigs[ETH_SEPOLIA_CHAIN_ID] = getSepoliaEthConfig();
     }
