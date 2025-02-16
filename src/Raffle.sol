@@ -168,4 +168,16 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     function getSubscriptionId() external view returns (uint256) {
         return i_subscriptionId;
     }
+
+    function getNUM_WORDS() external pure returns (uint32) {
+        return NUM_WORDS;
+    }
+
+    function getIntervalOfRaffleWinnerSelection() external view returns (uint256) {
+        return i_interval;
+    }
+
+    function getRequestConfirmations() external pure returns (uint16) {
+        return REQUEST_CONFIRMATONS;
+    }
 }
