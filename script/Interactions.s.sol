@@ -7,6 +7,11 @@ import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VR
 import {LinkToken} from "test/mocks/LinkToken.sol";
 import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
+/**
+ * @title CreateSubscription contract
+ * @author Chitoiu Andrei
+ * @notice Creates a subscription for the VRFContract
+ */
 contract CreateSubscription is Script {
     function createSubscriptionUsingConfig() public returns (uint256, address) {
         // Create a new subscription
@@ -32,6 +37,11 @@ contract CreateSubscription is Script {
     }
 }
 
+/**
+ * @title FundSubscription contract
+ * @author Chitoiu Andrei
+ * @notice Funds the subscription for the VRFContract
+ */
 contract FundSubscription is Script, CodeConstants {
     uint256 public constant FUND_AMOUNT = 3 ether;
 
@@ -81,6 +91,11 @@ contract FundSubscription is Script, CodeConstants {
         }
     }
 }
+/**
+ * @title AddConsumer contract
+ * @author Chitoiu Andrei
+ * @notice Adds a consumer to the VRFContract
+ */
 
 contract AddConsumer is Script {
     function addConsumerUsingConfig(address mostRecentlyDeployed) public {
