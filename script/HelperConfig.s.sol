@@ -6,6 +6,11 @@ import {Script, console2} from "forge-std/Script.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {LinkToken} from "test/mocks/LinkToken.sol";
 
+/**
+ * @title CodeConstants contract
+ * @author Chitoiu Andrei
+ * @notice This is an abstract contract meant to hold values for different CodeConstants
+ */
 abstract contract CodeConstants {
     /*VRF Mock Values*/
     uint96 public MOCK_BASE_FEE = 0.25 ether;
@@ -17,11 +22,29 @@ abstract contract CodeConstants {
     uint256 public constant LOCAL_CHAIN_ID = 31337;
 }
 
+/**
+ * @title HelperConfig contract
+ * @author Chitoiu Andrei
+ * @notice This contract dinamically handles the global configuration depending on the chain we are deploying on
+ * @notice It it configuring the VRF coordinator contract for Sepolia testnet and local chain testing space
+ * @notice For local testing it uses a VRFCoordinatorMock and a Link token mock so we can fund the subscription
+ */
 contract HelperConfig is CodeConstants, Script {
     //** Errors */
     error HelperConfig_InvalidChainId();
 
     //** Types */
+    /**
+     * @dev This struct contains all the necessary variables needed to instantiate a VRFConsumer
+     * @param entranceFee - defines the entrance fee to enter the raffle
+     * @param interval - defines the interval at which time the consumer's performUpkeep will be called by the Chainlink nodes
+     * @param vrfCoordinator - the VRFCoordinator contract address. This is the contract that will call the consumer's fulfillRandomWords function
+     * @param gasLane - the keyHash representing the gas lane through which our calls are happening, depending on the amount of gas we are willing to pay
+     * @param callbackGasLimit - the gas limit we are willing to pay when the VRFCoordinator contract calls our fulfillRandomWords function in the consumer contract
+     * @param subscriptionId - the id of the subscription defining the subscription we made to the VRFCoordinator
+     * @param link - the address of the Chainlink Link token depending on the chain we are working on
+     * @param account - the address of the deployer's account
+     */
     struct NetworkConfig {
         uint256 entranceFee;
         uint256 interval;
@@ -47,6 +70,10 @@ contract HelperConfig is CodeConstants, Script {
         networkConfigs[chainId] = config;
     }
 
+    /**
+     * @dev This is a function that dinamically handles chain configuration.
+     * It currently supports local chain configuration and Sepolia testnet chain configuration
+     */
     function getConfigByChainId(uint256 chainId) public returns (NetworkConfig memory) {
         if (networkConfigs[chainId].vrfCoordinator != address(0)) {
             return networkConfigs[chainId];
@@ -74,6 +101,10 @@ contract HelperConfig is CodeConstants, Script {
         return getConfigByChainId(block.chainid);
     }
 
+    /**
+     * @dev This function handles the configuration for a local chain.
+     * It deploys a mock VRFCoordinator and a LinkToken used to fund our subscription
+     */
     function getOrCreateAnvilConfig() public returns (NetworkConfig memory) {
         if (localNetworkConfig.vrfCoordinator != address(0)) {
             return localNetworkConfig;
