@@ -55,3 +55,20 @@ deploy-sepolia:
 deploy-anvil:
 	deploy-anvil:
 	@forge script script/DeployRaffle.s.sol:DeployRaffle --broadcast --fork-url http://127.0.0.1:8545 --sender $(SENDER_ADDRESS) --account $(ACCOUNT_NAME)
+
+# For local testing 
+
+# Request upkeep
+request:
+	@cast send 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9 \
+		"performUpkeep(bytes)" 0x \
+		--private-key $(DEFAULT_ANVIL_KEY) \
+		--rpc-url http://127.0.0.1:8545
+
+# Fulfill random words
+fulfill:
+	@cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 \
+		"fulfillRandomWords(uint256,address)" $(REQUEST_ID) \
+		0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9 \
+		--private-key $(DEFAULT_ANVIL_KEY) \
+		--rpc-url http://127.0.0.1:8545
