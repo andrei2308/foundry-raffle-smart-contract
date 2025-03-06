@@ -30,6 +30,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
 
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
+    uint8 private s_winningStreak = 0;
     //@dev the duration of each lottery in seconds
     uint256 immutable i_interval;
     uint256 private s_lastTimestamp;
@@ -46,8 +47,9 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
     event RequestedRaffleWinner(uint256 indexed requestId);
-
+    event AchievementEarned(address indexed player, uint256 indexed achievementId);
     //**Functions */
+
     constructor(
         uint256 entranceFee,
         uint256 interval,
@@ -153,6 +155,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         //Effects
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];
+        recordWin(recentWinner);
         s_recentWinner = recentWinner;
         s_raffleState = RaffleState.OPEN;
         s_players = new address payable[](0);
@@ -165,7 +168,18 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         }
     }
 
+    function recordWin(address player) internal {
+        if (player != s_recentWinner) {
+            s_winningStreak = 0;
+        }
+        s_winningStreak++;
+        if (s_winningStreak == 3) {
+            emit AchievementEarned(player, 1);
+            s_winningStreak = 0;
+        }
+    }
     //** Getter functions */
+
     function getEntranceFee() external view returns (uint256) {
         return i_entranceFee;
     }
